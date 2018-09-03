@@ -1,0 +1,3 @@
+from .duplicates_pipeline import DuplicatesPipeline
+from .prune_pipeline import PrunePipeline
+from .api_call_pipeline import ApiCallPipeline
