@@ -16,6 +16,10 @@ class ColgSpider(Spider):
     urls = ['http://bbs.colg.cn/forum-171-{0}.html'.format(n) for n in range(1,MAX_PAGE+1)]
     start_urls = urls
 
+    custom_settings = {
+        'UTC_OFFSET': '+0800',
+    }
+
     def parse(self, response: HtmlResponse):
         # yield response.follow('http://bbs.colg.cn/thread-7113696-1-1.html', parse_comment)
         # yield response.follow('http://bbs.colg.cn/thread-7113696-1-1.html', parse_article)
