@@ -1,5 +1,7 @@
 import requests
 
+from scrapy.exceptions import DropItem
+
 from voc_crawler.history_repository import HistoryRepository
 
 class ApiCallPipeline(object):
@@ -26,5 +28,8 @@ class ApiCallPipeline(object):
             return item
         except Exception as ex:
             HistoryRepository.erase(item['id'], item['type'] == 'comment')
-            raise ex
+            if result.status_code == 400:
+                raise DropItem("article not exiest: %s" % item)
+            else:
+                raise ex
         
