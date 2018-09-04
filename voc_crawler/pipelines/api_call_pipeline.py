@@ -29,7 +29,7 @@ class ApiCallPipeline(object):
         except Exception as ex:
             HistoryRepository.erase(item['id'], item['type'] == 'comment')
             if result.status_code == 400:
-                raise DropItem("article not exiest: %s" % item)
+                raise DropItem("article not exist: %s" % item)
             else:
                 raise ex
         
