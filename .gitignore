@@ -107,3 +107,4 @@ dbs/default.db
 
 scrapy.cfg
 settings.py
+voc_crawler/spiders/colg_spider_settings.py

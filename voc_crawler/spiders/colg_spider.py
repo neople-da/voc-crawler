@@ -8,34 +8,36 @@ from scrapy.exceptions import DropItem
 from scrapy.http.response.html import HtmlResponse
 from scrapy.selector import Selector
 
+from .colg_spider_settings import COLG_HOST, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE
+
 class ColgSpider(Spider):
-    HOST = 'http://bbs.colg.cn'
-    # MAX_PAGE = 10
-    MAX_PAGE = 1
+    HOST = COLG_HOST
+    MAX_PAGE = 10
     name = 'colg'
-    urls = ['http://bbs.colg.cn/forum-171-{0}.html'.format(n) for n in range(1,MAX_PAGE+1)]
+    urls = [START_URL_FORMAT.format(n) for n in range(1,MAX_PAGE+1)]
     start_urls = urls
 
     custom_settings = {
-        'UTC_OFFSET': '+0800',
+        'UTC_OFFSET': UTC_OFFSET,
+        'CRAWLE_RANGE_COMMENT_PAGE': CRAWLE_RANGE_COMMENT_PAGE
     }
 
     def parse(self, response: HtmlResponse):
-        # yield response.follow('http://bbs.colg.cn/thread-7113696-1-1.html', parse_comment)
-        # yield response.follow('http://bbs.colg.cn/thread-7113696-1-1.html', parse_article)
         
         articleLinks = get_article_links(response)
         # for articleLink in articleLinks:
         #     yield response.follow(articleLink, parse_article)
 
+        #comments in first page
         for articleLink in articleLinks:
-            yield response.follow(articleLink, parse_comment) #comments in first page
+            yield response.follow(articleLink, parse_comment) 
 
-        commentLinks = get_comment_links(response)
+        commentLinks = get_comment_links(response, self)
         for commentLink in commentLinks:
             yield response.follow(commentLink, parse_comment)
 
-REGEX_ARTICLEID = re.compile(r'http://bbs.colg.cn/thread-(\d*)-(\d*)-1.html')
+REGEX_ARTICLEID = re.compile(COLG_HOST + r'/thread-(\d*)-(\d*)-(\d*).html')
+REGEX_COMMENTPAGE_LINK = re.compile(r'thread-(\d*)-(\d*)-(\d*).html')
 REGEX_COMMENT_ID = re.compile(r'post_(\d*)')
 
 def get_article_links(response: HtmlResponse):
@@ -70,12 +72,27 @@ def parse_article_writedate(response: HtmlResponse):
 def parse_article_writer(response: HtmlResponse):
     return response.css('.authi a::text').extract_first().strip()
 
+def get_comment_links(response: HtmlResponse, spider: ColgSpider):
+    url = []
+    lastPageUrls = response.css('.tps a:last-child').xpath('@href').extract()
+    for lastPageUrl in lastPageUrls:
+        url.extend(get_commentlistpage_urls_near_endof_lastpage(lastPageUrl, spider))
+    return url
 
-def get_comment_links(response: HtmlResponse):
-    return response.css('.tps a')
+def get_commentlistpage_urls_near_endof_lastpage(lastPageUrl: str, spider: ColgSpider):
+    lastPageNo = get_comment_page_no(lastPageUrl)
+    for i in range(0, spider.custom_settings['CRAWLE_RANGE_COMMENT_PAGE']):
+        if(lastPageNo - i > 0):
+            yield replace_comment_page_no(lastPageUrl, lastPageNo - i)
+            
+def replace_comment_page_no(url: str, pageNo: int):
+    return REGEX_COMMENTPAGE_LINK.sub('thread-\\1-' + str(pageNo) + '-\\3.html', url)
 
 def get_comment_page_no(url):
-    return int(REGEX_ARTICLEID.findall(url)[0][1])
+    if(REGEX_ARTICLEID.match(url)):
+        return int(REGEX_ARTICLEID.findall(url)[0][1])
+    if(REGEX_COMMENTPAGE_LINK.match(url)):
+        return int(REGEX_COMMENTPAGE_LINK.findall(url)[0][1])
     
 def get_host_part(url):
     parsed_uri = urlparse(url)
@@ -83,6 +100,9 @@ def get_host_part(url):
     return host_part
 
 def parse_comment(response: HtmlResponse):
+    if response.css('#messagelogin'):
+        raise DropItem("login required: %s" % response.url)
+
     commentDivs = response.css('#postlist > div:not(:first-child):not(:last-child)')
 
     isFirstPage = get_comment_page_no(response.request.url) == 1
