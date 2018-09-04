@@ -28,9 +28,8 @@ class DuplicatesPipeline(object):
     def process_item(self, item, spider):
         isComment = item['type'] != 'article'
 
-        # if isComment:
-        #     if self.client.getbit('colg:article', item['articleId']) == False:
-        #         raise DropItem('parent article not found: %s' % item)
+        if isComment and self.client.getbit('cd:c', item['articleId']) == False:
+            raise DropItem('parent article not found: %s' % item)
 
         historyRedis = 'colg:comment' if isComment else 'colg:article'
 
