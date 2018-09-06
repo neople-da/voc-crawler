@@ -8,11 +8,10 @@ from scrapy.exceptions import DropItem
 from scrapy.http.response.html import HtmlResponse
 from scrapy.selector import Selector
 
-from .colg_spider_settings import COLG_HOST, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE
+from .colg_spider_settings import COLG_HOST, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
 
 class ColgSpider(Spider):
     HOST = COLG_HOST
-    MAX_PAGE = 10
     name = 'colg'
     urls = [START_URL_FORMAT.format(n) for n in range(1,MAX_PAGE+1)]
     start_urls = urls
