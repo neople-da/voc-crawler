@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from scrapy.exceptions import DropItem
 from voc_crawler.history_repository import HistoryRepository
 
 class PrunePipeline(object):
@@ -11,10 +12,13 @@ class PrunePipeline(object):
             self.swap_img_src_attribute(soup)
             self.remove_duplicated_br(soup)
             item['content'] = str(soup)
-            return item
         except Exception as ex:
             HistoryRepository.erase(item['id'], item['type'] == 'comment')
             raise ex
+        if item['content']:
+            return item
+        else :
+            raise DropItem("content is none: %s" % item)
 
     def remove_meaningless_tags(self, soup: BeautifulSoup):
         for element in soup.find_all(self.find_element_to_remove):
