@@ -3,8 +3,13 @@ from voc_crawler.history_repository import HistoryRepository
 class TestHistoryRepository():
 
     def test_write(self):
-        HistoryRepository.erase(1)
-        HistoryRepository.write(1)
-        assert HistoryRepository.exist(1) == True
-        HistoryRepository.erase(1)
-        assert HistoryRepository.exist(1) == False
+        item = {
+            'site': 'colg',
+            'type': 'article',
+            'id': 1
+        }
+        HistoryRepository.erase(item)
+        HistoryRepository.write(item)
+        assert HistoryRepository.exist(item) == True
+        HistoryRepository.erase(item)
+        assert HistoryRepository.exist(item) == False

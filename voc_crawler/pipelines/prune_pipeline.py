@@ -13,7 +13,7 @@ class PrunePipeline(object):
             self.remove_duplicated_br(soup)
             item['content'] = str(soup)
         except Exception as ex:
-            HistoryRepository.erase(item['id'], item['type'] == 'comment')
+            HistoryRepository.erase(item)
             raise ex
         if item['content']:
             return item

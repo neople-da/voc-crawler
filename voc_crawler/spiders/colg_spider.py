@@ -8,7 +8,7 @@ from scrapy.exceptions import DropItem
 from scrapy.http.response.html import HtmlResponse
 from scrapy.selector import Selector
 
-from .colg_spider_settings import COLG_HOST, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
+from .colg_spider_settings import COLG_HOST, SITE_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
 
 class ColgSpider(Spider):
     HOST = COLG_HOST
@@ -18,7 +18,8 @@ class ColgSpider(Spider):
 
     custom_settings = {
         'UTC_OFFSET': UTC_OFFSET,
-        'CRAWLE_RANGE_COMMENT_PAGE': CRAWLE_RANGE_COMMENT_PAGE
+        'CRAWLE_RANGE_COMMENT_PAGE': CRAWLE_RANGE_COMMENT_PAGE,
+        'SITE_ID': SITE_ID
     }
 
     def parse(self, response: HtmlResponse):
@@ -124,7 +125,7 @@ def parse_comment_url(selector: Selector):
     return selector.css('.pti .authi a::attr(href)').extract_first()
 
 def parse_comment_id(selector: Selector):
-    return REGEX_COMMENT_ID.findall(selector.xpath('@id').extract_first())[0]
+    return int(REGEX_COMMENT_ID.findall(selector.xpath('@id').extract_first())[0])
 
 def parse_comment_content(selector: Selector):
     xpath = './/td[@class="t_f"]/node()'
