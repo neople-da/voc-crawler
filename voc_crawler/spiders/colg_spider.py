@@ -8,7 +8,7 @@ from scrapy.exceptions import DropItem
 from scrapy.http.response.html import HtmlResponse
 from scrapy.selector import Selector
 
-from .colg_spider_settings import COLG_HOST, SITE_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
+from .colg_spider_settings import COLG_HOST, VOC_GAME_TYPE, VOC_SITE_ID, VOC_BOARD_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
 
 class ColgSpider(Spider):
     HOST = COLG_HOST
@@ -19,7 +19,9 @@ class ColgSpider(Spider):
     custom_settings = {
         'UTC_OFFSET': UTC_OFFSET,
         'CRAWLE_RANGE_COMMENT_PAGE': CRAWLE_RANGE_COMMENT_PAGE,
-        'SITE_ID': SITE_ID
+        'VOC_GAME_TYPE': VOC_GAME_TYPE,
+        'VOC_SITE_ID': VOC_SITE_ID,
+        'VOC_BOARD_ID': VOC_BOARD_ID
     }
 
     def parse(self, response: HtmlResponse):
@@ -47,7 +49,7 @@ def parse_article(response: HtmlResponse):
     if response.css('#messagelogin'):
         raise DropItem("login required: %s" % response.url)
     yield {
-        'site': 'colg',
+        'boardId': 'cd:c',
         'type': 'article',
         'url': response.url,
         'id': parse_articleid(response.request.url),
@@ -111,7 +113,7 @@ def parse_comment(response: HtmlResponse):
 
     for div in commentDivs:
         yield {
-            'site': 'colg',
+            'boardId': 'colg:comment',
             'type': 'comment',
             'url': get_host_part(response.url) + parse_comment_url(div),
             'id': parse_comment_id(div),

@@ -6,7 +6,7 @@ from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 from scrapy.selector import Selector
 
-from .baidu_spider_settings import BAIDU_HOST, SITE_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
+from .baidu_spider_settings import BAIDU_HOST, VOC_GAME_TYPE, VOC_SITE_ID, VOC_BOARD_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
 
 class BaiduCommentSpider(Spider):
     HOST = BAIDU_HOST
@@ -16,7 +16,9 @@ class BaiduCommentSpider(Spider):
     custom_settings = {
         'UTC_OFFSET': UTC_OFFSET,
         'CRAWLE_RANGE_COMMENT_PAGE': CRAWLE_RANGE_COMMENT_PAGE,
-        'SITE_ID': SITE_ID
+        'VOC_GAME_TYPE': 'CDNF',
+        'VOC_SITE_ID': VOC_SITE_ID,
+        'VOC_BOARD_ID': VOC_BOARD_ID
     }
 
     def parse(self, response: HtmlResponse):
@@ -54,7 +56,7 @@ def parse_comment(response: HtmlResponse):
         dataAttr = div.xpath('@data-field').extract_first()
         x = json.loads(dataAttr)
         yield {
-            'site': 'colg',
+            'boardId': 'baidu:comment',
             'type': 'comment',
             'url': response.request.url,
             'id': x['content']['post_id'],

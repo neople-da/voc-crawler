@@ -18,10 +18,11 @@ class ApiCallPipeline(object):
         isArticle = item['type'] == 'article'
         if isArticle:
             try:
-                subUrl = '/articles'
+                subUrl = spider.custom_settings['VOC_GAME_TYPE'] + '/articles'
                 result = requests.post(self.apiHost + subUrl, data= {
                     'ContentsNo': item['id'],
-                    'SiteID': spider.custom_settings['SITE_ID'],
+                    'SiteID': spider.custom_settings['VOC_SITE_ID'],
+                    'BoardID': spider.custom_settings['VOC_BOARD_ID'],
                     'Title': item['title'],
                     'Content': item['content'],
                     'WriterID': item['writer'],
@@ -38,7 +39,7 @@ class ApiCallPipeline(object):
                     raise ex
         else:
             try:
-                subUrl = f"/comments?siteId={spider.custom_settings['SITE_ID']}&siteArticleId={item['articleId']}"
+                subUrl = f"{spider.custom_settings['VOC_GAME_TYPE']}/comments?siteId={spider.custom_settings['VOC_SITE_ID']}&siteArticleId={item['articleId']}"
                 result = requests.post(self.apiHost + subUrl, data= {
                     'SiteCommentID': item['id'],
                     'Content': item['content'],

@@ -7,7 +7,7 @@ from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 from scrapy.selector import Selector
 
-from .baidu_spider_settings import BAIDU_HOST, SITE_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
+from .baidu_spider_settings import BAIDU_HOST, VOC_GAME_TYPE, VOC_SITE_ID, VOC_BOARD_ID, START_URL_FORMAT, UTC_OFFSET, CRAWLE_RANGE_COMMENT_PAGE, MAX_PAGE
 
 class BaiduSpider(Spider):
     HOST = BAIDU_HOST
@@ -17,7 +17,9 @@ class BaiduSpider(Spider):
     custom_settings = {
         'UTC_OFFSET': UTC_OFFSET,
         'CRAWLE_RANGE_COMMENT_PAGE': CRAWLE_RANGE_COMMENT_PAGE,
-        'SITE_ID': SITE_ID
+        'VOC_GAME_TYPE': VOC_GAME_TYPE,
+        'VOC_SITE_ID': VOC_SITE_ID,
+        'VOC_BOARD_ID': VOC_BOARD_ID
     }
 
     def parse(self, response: HtmlResponse):
@@ -33,7 +35,7 @@ def get_article_links(response: HtmlResponse):
 
 def parse_article(response: HtmlResponse):
     yield {
-        'site': 'baidu',
+        'boardId': 'baidu:article',
         'type': 'article',
         'url': response.url,
         'id': parse_articleid(response.request.url),
