@@ -1,0 +1,8 @@
+COLG_HOST = 'http://bbs.colg.cn'
+START_URL_FORMAT = 'http://bbs.colg.cn/forum-171-{0}.html'
+UTC_OFFSET = '+0800'
+CRAWLE_RANGE_COMMENT_PAGE = 5
+MAX_PAGE = 3
+VOC_SITE_ID = 2
+VOC_BOARD_ID = 1
+VOC_GAME_TYPE = 'CDNF'
