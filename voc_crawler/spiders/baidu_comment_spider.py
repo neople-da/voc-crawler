@@ -28,7 +28,15 @@ class BaiduCommentSpider(Spider):
             yield response.follow(articleLink, parse_comment)
 
 def get_article_links(response: HtmlResponse):
-    return response.css('.threadlist_title a.j_th_tit')
+    commentsString = response.xpath('//comment()').extract()
+    for c in commentsString:
+        if 'id="thread_list"' in c:
+            threadStrings = c
+    html_template = '<html><body>%s</body></html>'
+    
+    threadStrings = html_template % threadStrings.replace('<!--','').replace('-->', '')
+    sel = Selector(text=threadStrings)
+    return sel.css('.threadlist_title a.j_th_tit')
 
 def get_comment_page_links(response: HtmlResponse):
     lastUrl = response.css('.pb_list_pager > a:last-child').xpath('@href').extract_first()

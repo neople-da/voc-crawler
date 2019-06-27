@@ -31,7 +31,15 @@ class BaiduSpider(Spider):
 REGEX_ARTICLEID = re.compile(BAIDU_HOST + r'/p/(\d*)')
 
 def get_article_links(response: HtmlResponse):
-    return response.css('.threadlist_title a.j_th_tit')
+    commentsString = response.xpath('//comment()').extract()
+    for c in commentsString:
+        if 'id="thread_list"' in c:
+            threadStrings = c
+    html_template = '<html><body>%s</body></html>'
+    
+    threadStrings = html_template % threadStrings.replace('<!--','').replace('-->', '')
+    sel = Selector(text=threadStrings)
+    return sel.css('.threadlist_title a.j_th_tit')
 
 def parse_article(response: HtmlResponse):
     yield {
